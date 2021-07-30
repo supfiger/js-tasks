@@ -1,83 +1,43 @@
 function createRandomIntegerArrayInRange(min, max) {
   return Array(max - min + 1)
     .fill()
-    .map((item, index) => min + index)
+    .map((_, index) => min + index)
     .sort(() => Math.random() - 0.5);
 }
 
-function findPairWithSpecificSums2(arr, specificSum) {
-  return arr.reduce((prev, value, index) => {
-    const currIndex = index;
-    const currValue = value;
+const compare = ({ array, index0, index1, _givenSum, pair = {}, obj }) => {
+  index1 = (index1 || index0) + 1;
 
-    let inSumWithNumber;
+  const num0 = { value: array[index0], index: index0 };
+  const num1 = { value: array[index1], index: index1 };
 
-    const prevData = Object.values(prev);
-    // const isSum = prevValue?.currValue + value === specificSum;
-    // const sumOfIndexes = prevValue?.currIndex < index;
-    // const sumOfPrevIndexes = prevValue?.currIndex < index;
-    // let isPair = isSum && sumOfIndexes < sumOfPrevIndexes;
+  const getPairObject = () => ({ num0, num1, _sumOfIndexes: index0 + index1, _givenSum });
+  const recursion = () => compare({ array, index0, index1, _givenSum, pair, obj });
+  const comparePairs = () => (pair = isPreviousPairLess ? pair : getPairObject());
 
-    const compare = (currValue, prevData) => {
-      if (prevData) {
-        const prevValue = prevData.currValue;
-        const deepPrevData = prevData.prevData;
-        const isSum = currValue + prevValue === specificSum;
+  const isPair = Object.keys(pair).length;
+  const isPreviousPairLess = isPair && pair.sumOfIndexes < index0 + index1;
+  const isSum = array[index0] + array[index1] === _givenSum;
+  const isEnd = index1 === array.length;
 
-        if (isSum) {
-        }
-
-        if (deepPrevData) {
-          compare(currValue);
-        }
-        if (isSum) {
-          inSumWithNumber;
-        }
-        return;
-      } else {
-        return;
-      }
-    };
-
-    if (inSumWithNumber) {
-      return "hello";
-    }
-
-    return {
-      ...prev,
-      [currValue]: {
-        currIndex,
-        currValue,
-        ...(inSumWithNumber ? { inSumWithNumber } : { prevData }),
-      },
-    };
-  }, {});
-}
-
-const compare = ({ array, initialIndex, nextIndex, givenSum, pair, prev }) =>
-  (nextIndex = (nextIndex || initialIndex) + 1) === array.length
-    ? pair || prev
-    : (array[initialIndex] + array[nextIndex] === givenSum &&
-        (initialIndex + nextIndex < pair?.sumOfIndexes
-          ? (pair = {
-              num1: { value: array[initialIndex], index: initialIndex },
-              num2: { value: array[nextIndex], index: nextIndex },
-              sumOfIndexes: initialIndex + nextIndex,
-            })
-          : pair),
-      compare({ array, initialIndex, nextIndex, givenSum, pair, prev }));
-
-const findPairWithGivenSums = (arr, givenSum) => {
-  return arr.reduce((prev, _, index, array) => {
-    const curr = compare({ array, initialIndex: index, givenSum, prev });
-    const result = prev.sumOfIndexes < curr.sumOfIndexes ? prev : curr;
-
-    return { ...prev, ...result };
-  }, {});
+  if (isEnd) {
+    return pair || obj;
+  } else {
+    isSum && comparePairs();
+    return recursion();
+  }
 };
 
-const arr = createRandomIntegerArrayInRange(1, 10);
-const sum = findPairWithGivenSums(arr, 10);
+const findPairWithGivenSums = (arr, _givenSum) =>
+  arr.reduce((obj, _, index, array) => {
+    const currentPair = compare({ array, index0: index, _givenSum, obj });
+    const resultPair = obj.sumOfIndexes < currentPair.sumOfIndexes ? obj : currentPair;
+
+    return { ...obj, ...resultPair };
+  }, {});
+
+const arr = createRandomIntegerArrayInRange(1, 30);
+const sum = findPairWithGivenSums(arr, 15);
 
 console.log("------------");
 console.log("arr:", arr);
