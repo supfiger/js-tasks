@@ -11,7 +11,8 @@ const findPairWithGivenSums = ({ arr, _givenSum }) =>
       ? pair
       : pair[item] >= 0
       ? [_givenSum - item, item]
-      : { ...pair, [_givenSum - item]: index }
+      : { ...pair, [_givenSum - item]: index },
+   {}
   );
 
 const findPairWithGivenSums1 = ({ arr, _givenSum }) => {
